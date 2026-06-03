@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Business Assistant</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f4;
+      --bg-tertiary: #f0f0ee;
+      --border: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.2);
+      --text-primary: #1a1a1a;
+      --text-secondary: #555;
+      --text-tertiary: #888;
+      --color-success: #166534;
+      --bg-success: #dcfce7;
+      --color-warning: #92400e;
+      --bg-warning: #fef3c7;
+      --color-danger: #991b1b;
+      --bg-danger: #fee2e2;
+      --color-info: #1e3a8a;
+      --bg-info: #dbeafe;
+      --color-purple: #5b21b6;
+      --bg-purple: #ede9fe;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1e;
+        --bg-secondary: #2c2c2e;
+        --bg-tertiary: #3a3a3c;
+        --border: rgba(255,255,255,0.1);
+        --border-secondary: rgba(255,255,255,0.18);
+        --text-primary: #f2f2f7;
+        --text-secondary: #aeaeb2;
+        --text-tertiary: #636366;
+        --color-success: #86efac;
+        --bg-success: #14532d40;
+        --color-warning: #fde68a;
+        --bg-warning: #92400e40;
+        --color-danger: #fca5a5;
+        --bg-danger: #7f1d1d40;
+        --color-info: #93c5fd;
+        --bg-info: #1e3a8a40;
+        --color-purple: #c4b5fd;
+        --bg-purple: #4c1d9540;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .container { max-width: 920px; margin: 0 auto; }
+    .header { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .header p { font-size: 13px; color: var(--text-secondary); }
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .field label { display: block; font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; }
+    .field input, .field textarea {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      padding: 8px 11px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .field input:focus, .field textarea:focus { border-color: #3b82f6; }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text-tertiary); }
+    .field textarea { resize: none; height: 68px; line-height: 1.5; }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: #2563eb;
+      border: none;
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background .15s;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-outline {
+      padding: 8px 16px;
+      background: transparent;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .btn-outline:hover { background: var(--bg-secondary); }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box {
+      display: none;
+      background: var(--bg-danger);
+      border: 0.5px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--color-danger);
+      margin-bottom: 1rem;
+    }
+    .loader { display: none; text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 13px; }
+    .loader .spin-lg {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border-secondary);
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 12px;
+    }
+    .loader-step { font-size: 12px; color: var(--text-tertiary); margin-top: 6px; }
+    #output { display: none; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .metric {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      text-align: center;
+    }
+    .metric .m-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; }
+    .metric .m-value { font-size: 22px; font-weight: 600; }
+    .analysis-grid { display: grid; grid-template-columns: 1fr 240px; gap: 12px; }
+    .finding-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 7px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .finding-row:last-child { border-bottom: none; }
+    .finding-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .dot-warn { background: var(--color-warning); }
+    .dot-danger { background: var(--color-danger); }
+    .dot-success { background: var(--color-success); }
+    .dot-info { background: var(--color-info); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .action-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .action-row:last-child { border-bottom: none; }
+    .action-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--bg-info);
+      color: var(--color-info);
+      font-size: 11px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .action-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+    .action-why { font-size: 12px; color: var(--text-tertiary); margin-bottom: 6px; line-height: 1.4; }
+    .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+    }
+    .tag-high { background: var(--bg-success); color: var(--color-success); }
+    .tag-med  { background: var(--bg-warning); color: var(--color-warning); }
+    .tag-low  { background: var(--bg-secondary); color: var(--text-tertiary); }
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2,1fr); }
+      .analysis-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div>
+      <h1>AI Business Assistant</h1>
+      <p>Enter your business details to generate an AI-powered analysis and action plan.</p>
+    </div>
+    <button class="btn-outline" id="downloadBtn" onclick="downloadReport()" style="display:none">
+      <i class="ti ti-download"></i> Export JSON
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Business information</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Website URL</label>
+        <input id="f-url" type="text" placeholder="https://yourbusiness.com" />
+      </div>
+      <div class="field">
+        <label>Business type</label>
+        <input id="f-type" type="text" placeholder="e.g. local bakery, gym, restaurant" />
+      </div>
+      <div class="field">
+        <label>Google reviews summary</label>
+        <textarea id="f-reviews" placeholder="e.g. 4.1 stars, 90 reviews. Praised for quality, complaints about slow service."></textarea>
+      </div>
+      <div class="field">
+        <label>Competitor URLs (comma-separated)</label>
+        <textarea id="f-comps" placeholder="https://competitor1.com, https://competitor2.com"></textarea>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label>Backend API URL</label>
+      <input id="f-backend" type="text" value="http://127.0.0.1:8000" />
+    </div>
+    <div id="errBox" class="error-box"></div>
+    <button class="btn" id="runBtn" onclick="runAnalysis()">
+      <i class="ti ti-sparkles"></i> Analyze business
+    </button>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="spin-lg"></div>
+    <div id="loaderText">Analyzing your business...</div>
+    <div class="loader-step" id="loaderStep">Scraping website content</div>
+  </div>
+
+  <div id="output">
+    <div class="metrics" id="metrics"></div>
+    <div class="analysis-grid">
+      <div>
+        <div class="card">
+          <div class="card-label">Summary</div>
+          <p id="outSummary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></p>
+        </div>
+        <div class="card">
+          <div class="card-label">Key findings</div>
+          <div id="outFindings"></div>
+        </div>
+        <div class="card">
+          <div class="two-col">
+            <div>
+              <div class="card-label">Problems</div>
+              <div id="outProblems"></div>
+            </div>
+            <div>
+              <div class="card-label">Opportunities</div>
+              <div id="outOpportunities"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Competitor insights</div>
+          <p id="outCompetitor" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></p>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-label">Action plan</div>
+          <div id="outActions"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let lastReport = null;
+
+const loaderSteps = [
+  'Scraping website content...',
+  'Parsing review sentiment...',
+  'Analyzing competitor gaps...',
+  'Running AI analysis...',
+  'Generating action plan...'
+];
+let loaderInterval = null;
+
+function startLoader() {
+  let i = 0;
+  document.getElementById('loaderStep').textContent = loaderSteps[0];
+  loaderInterval = setInterval(() => {
+    i = (i + 1) % loaderSteps.length;
+    document.getElementById('loaderStep').textContent = loaderSteps[i];
+  }, 1800);
+}
+
+function stopLoader() {
+  clearInterval(loaderInterval);
+}
+
+async function runAnalysis() {
+  const url      = document.getElementById('f-url').value.trim();
+  const type     = document.getElementById('f-type').value.trim();
+  const reviews  = document.getElementById('f-reviews').value.trim();
+  const comps    = document.getElementById('f-comps').value.trim();
+  const backend  = document.getElementById('f-backend').value.trim().replace(/\/$/, '') || 'http://127.0.0.1:8000';
+  const errBox   = document.getElementById('errBox');
+
+  errBox.style.display = 'none';
+
+  if (!url || !type) {
+    errBox.textContent = 'Please fill in at least Website URL and Business type.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const competitor_urls = comps ? comps.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('runBtn').innerHTML = '<div class="spinner"></div> Analyzing...';
+  document.getElementById('loader').style.display = 'block';
+  document.getElementById('output').style.display = 'none';
+  document.getElementById('downloadBtn').style.display = 'none';
+  startLoader();
+
+  try {
+    const resp = await fetch(`${backend}/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ website_url: url, business_type: type, google_reviews: reviews, competitor_urls })
+    });
+    if (!resp.ok) {
+      const e = await resp.json().catch(() => ({}));
+      throw new Error(e.detail || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    lastReport = data;
+    renderReport(data, reviews);
+    document.getElementById('downloadBtn').style.display = 'inline-flex';
+  } catch (e) {
+    errBox.textContent = `Error: ${e.message}. Make sure your FastAPI server is running at ${backend}.`;
+    errBox.style.display = 'block';
+  }
+
+  stopLoader();
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('runBtn').innerHTML = '<i class="ti ti-sparkles"></i> Analyze business';
+}
+
+function renderReport(d, reviewsText) {
+  const score  = d.health_score || 0;
+  const rating = (reviewsText.match(/[\d.]+/) || ['?'])[0];
+  const sc     = score >= 70 ? 'var(--color-success)' : score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
+
+  document.getElementById('metrics').innerHTML = `
+    ${metric('Health score', score + '/100', sc)}
+    ${metric('Rating', rating + '★', 'var(--color-info)')}
+    ${metric('Findings', (d.key_findings || []).length, 'var(--color-warning)')}
+    ${metric('Actions', (d.action_plan || []).length, 'var(--color-success)')}
+  `;
+
+  document.getElementById('outSummary').textContent    = d.summary || '';
+  document.getElementById('outCompetitor').textContent = d.competitor_insights || '';
+
+  document.getElementById('outFindings').innerHTML = (d.key_findings || []).map(f => `
+    <div class="finding-row">
+      <span class="finding-dot dot-warn"></span>
+      <span>${f}</span>
+    </div>`).join('');
+
+  document.getElementById('outProblems').innerHTML = (d.problems || []).length
+    ? (d.problems || []).map(p => `
+        <div class="list-item">
+          <i class="ti ti-alert-circle list-icon" style="color:var(--color-danger)"></i>
+          <span>${p}</span>
+        </div>`).join('')
+    : '<p style="font-size:12px;color:var(--text-tertiary)">No problems returned.</p>';
+
+  document.getElementById('outOpportunities').innerHTML = (d.opportunities || []).length
+    ? (d.opportunities || []).map(o => `
+        <div class="list-item">
+          <i class="ti ti-bulb list-icon" style="color:var(--color-success)"></i>
+          <span>${o}</span>
+        </div>`).join('')
+    : '<p style="font-size:12px;color:var(--text-tertiary)">No opportunities returned.</p>';
+
+  document.getElementById('outActions').innerHTML = (d.action_plan || []).map(a => `
+    <div class="action-row">
+      <div class="action-num">${a.priority}</div>
+      <div>
+        <div class="action-title">${a.action}</div>
+        <div class="action-why">${a.why}</div>
+        <div class="tags">
+          <span class="tag">${a.timeline}</span>
+          <span class="tag">${a.cost}</span>
+          <span class="tag ${a.impact === 'High' ? 'tag-high' : a.impact === 'Medium' ? 'tag-med' : 'tag-low'}">${a.impact}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('output').style.display = 'block';
+  document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function metric(label, value, color) {
+  return `<div class="metric">
+    <div class="m-label">${label}</div>
+    <div class="m-value" style="color:${color}">${value}</div>
+  </div>`;
+}
+
+function downloadReport() {
+  if (!lastReport) return;
+  const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'business_report.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
