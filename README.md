@@ -112,6 +112,46 @@ POST /analyze
 }
 ```
 
+### Open the dashboard
+
+After starting the FastAPI server, open the dashboard in your browser:
+
+```text
+http://127.0.0.1:8000
+```
+
+The frontend interface is served automatically by the backend application.
+
+###  Run an analysis
+
+Using the dashboard, enter:
+
+* **Website URL** — the business website to analyze
+* **Business Type** — e.g. local bakery, gym, restaurant
+* **Google Reviews Summary** — paste or describe customer reviews
+* **Competitor URLs** — comma-separated competitor websites (optional)
+
+Click **Analyze Business**.
+
+The application will:
+
+1. Scrape the business website content
+2. Analyze customer review sentiment
+3. Compare the business against competitors
+4. Generate AI-powered business insights
+5. Display a complete business report with recommendations directly in the dashboard
+
+The generated report includes:
+
+* Health Score
+* Business Summary
+* Key Findings
+* Problems Identified
+* Opportunities
+* Competitor Insights
+* Prioritized Action Plan
+
+
 ---
 
 ## Production Extensions
